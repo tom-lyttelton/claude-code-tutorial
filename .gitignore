@@ -1,0 +1,10 @@
+# Only track site files
+*
+!.gitignore
+!index.html
+!style.css
+!favicon.svg
+!assets/
+!assets/**
+!modules/
+!modules/**
