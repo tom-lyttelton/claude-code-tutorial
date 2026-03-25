@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Finding and Getting Online Data — Claude Code Tutorial</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+</head>
+<body>
+
+  <main class="container" style="padding-top:2.5rem; padding-bottom:4rem;">
+
+    <p class="back-link"><a href="../">&larr; Back to tutorial home</a></p>
+
+    <h1>Finding and Getting Online Data</h1>
+    <p><em>Reference Guide (~5 min read)</em></p>
+
+    <hr>
+
+    <p>Research often requires finding new datasets or pulling data from the web. Claude can help you locate data sources, download files, and work with APIs &mdash; but knowing the limitations matters.</p>
+
+    <h2>Using Claude to Find Datasets</h2>
+
+    <p>Claude can suggest relevant datasets based on your research question:</p>
+
+    <pre><code>What public datasets exist for studying wage inequality in the US?</code></pre>
+
+    <pre><code>I need panel data on firm-level employment. What sources should I consider?</code></pre>
+
+    <p><strong>What Claude can do</strong>:</p>
+    <ul>
+      <li>Suggest well-known datasets (IPUMS, BLS, Census, etc.)</li>
+      <li>Describe what variables are typically available</li>
+      <li>Point you to documentation and access procedures</li>
+      <li>Compare trade-offs between different sources</li>
+    </ul>
+
+    <p><strong>What Claude cannot do</strong>:</p>
+    <ul>
+      <li>Access datasets that require login or institutional authentication</li>
+      <li>Scrape JavaScript-heavy data portals without browser tools (e.g., Playwright)</li>
+    </ul>
+
+    <p>Claude <strong>can</strong> search the web in real time using built-in tools (<code>WebSearch</code>, <code>WebFetch</code>), so it can find recent data releases and check current availability. But always verify terms of use and access procedures at the source.</p>
+
+    <h2>Downloading Data</h2>
+
+    <h3>Direct Downloads</h3>
+
+    <p>For publicly accessible files:</p>
+
+    <pre><code>Download the CSV file from https://example.gov/data/employment.csv
+and save it to data/raw/</code></pre>
+
+    <p>Claude will use <code>curl</code> or <code>wget</code> to fetch the file.</p>
+
+    <h3>From Data Portals</h3>
+
+    <p>Many data portals (ICPSR, Dataverse, government sites) require:</p>
+    <ul>
+      <li>Creating an account</li>
+      <li>Agreeing to terms of use</li>
+      <li>Manual download through their interface</li>
+    </ul>
+
+    <p>Claude cannot bypass these requirements. Download manually, then:</p>
+
+    <pre><code>I downloaded employment_data.zip to my Downloads folder.
+Move it to data/raw/ and extract it.</code></pre>
+
+    <h3>API Access</h3>
+
+    <p>For APIs with authentication (Census, BLS, FRED):</p>
+
+    <pre><code>I have a Census API key: [your-key]
+Pull county-level population data for 2020 from the ACS.</code></pre>
+
+    <p>Claude will write the API request code and execute it. Keep your API keys in a <code>.env</code> file, not in your code.</p>
+
+    <h2>Web Scraping Basics</h2>
+
+    <h3>When Scraping Is Appropriate</h3>
+
+    <ul>
+      <li>The data is publicly accessible</li>
+      <li>No API is available</li>
+      <li>The site's robots.txt and terms allow scraping</li>
+      <li>You're not overloading the server</li>
+    </ul>
+
+    <h3>Simple Scraping Patterns</h3>
+
+    <p>For a single page:</p>
+    <pre><code>Scrape the faculty list from https://sociology.university.edu/people
+and extract names, titles, and email addresses.</code></pre>
+
+    <p>For multiple pages:</p>
+    <pre><code>Scrape all faculty profiles from the economics department pages.
+Wait 2 seconds between requests to be polite to the server.</code></pre>
+
+    <h3>Rate Limiting and Ethics</h3>
+
+    <p>Always be a good citizen:</p>
+    <ul>
+      <li>Add delays between requests (1&ndash;2 seconds minimum)</li>
+      <li>Don't scrape during peak hours</li>
+      <li>Cache results to avoid re-scraping</li>
+      <li>Respect robots.txt</li>
+    </ul>
+
+    <pre><code>Scrape this site with a 2-second delay between pages.
+Save progress so we can resume if interrupted.</code></pre>
+
+    <h2>Working with APIs</h2>
+
+    <h3>Reading API Documentation</h3>
+
+    <p>Ask Claude to help interpret API docs:</p>
+
+    <pre><code>Here's the BLS API documentation: [paste or link]
+How do I request unemployment rates for California, 2015-2023?</code></pre>
+
+    <h3>Making Authenticated Requests</h3>
+
+    <p>Most research APIs require keys. Set up once:</p>
+
+    <pre><code>Create a .env file with my API keys:
+CENSUS_API_KEY=your_key_here
+FRED_API_KEY=your_key_here</code></pre>
+
+    <p>Then use them:</p>
+    <pre><code>Using my Census API key from .env, pull median household income
+by county for 2019.</code></pre>
+
+    <h3>Parsing JSON Responses</h3>
+
+    <p>API responses are typically JSON. Claude handles the parsing:</p>
+
+    <pre><code>Query the FRED API for the unemployment rate series,
+parse the response, and save as a clean CSV.</code></pre>
+
+    <h2>Common Pitfalls</h2>
+
+    <ol>
+      <li><strong>Assuming Claude can access everything</strong> &mdash; Many sites block automated access, require login, or serve JavaScript-rendered content that simple requests can't capture.</li>
+      <li><strong>Forgetting rate limits</strong> &mdash; APIs and websites have rate limits. Exceeding them gets you blocked. Always add delays.</li>
+      <li><strong>Not checking data terms</strong> &mdash; Some datasets prohibit redistribution or have specific citation requirements. Read the terms before using.</li>
+      <li><strong>Stale URLs</strong> &mdash; Government data URLs change frequently. If a download fails, search for the current location manually.</li>
+      <li><strong>Missing authentication</strong> &mdash; If an API call fails, the first thing to check is whether you're authenticated correctly.</li>
+    </ol>
+
+    <h2>Quick Reference</h2>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Task</th>
+          <th>Approach</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Find datasets</td>
+          <td>"What datasets exist for [topic]?"</td>
+        </tr>
+        <tr>
+          <td>Download public file</td>
+          <td>"Download [URL] to data/raw/"</td>
+        </tr>
+        <tr>
+          <td>Scrape webpage</td>
+          <td>"Scrape [URL] and extract [fields]"</td>
+        </tr>
+        <tr>
+          <td>Use API with key</td>
+          <td>Store key in .env, reference in request</td>
+        </tr>
+        <tr>
+          <td>Rate limiting</td>
+          <td>"Add 2-second delay between requests"</td>
+        </tr>
+        <tr>
+          <td>Parse API response</td>
+          <td>"Query [API], parse JSON, save as CSV"</td>
+        </tr>
+        <tr>
+          <td>Handle authentication</td>
+          <td>Manual login/download, then let Claude process</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <hr>
+
+    <p><em>Part of the Claude Code Tutorial for Quantitative Social Scientists</em></p>
+
+  </main>
+
+</body>
+</html>

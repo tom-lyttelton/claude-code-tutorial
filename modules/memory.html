@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Managing Context &amp; Long Projects — Claude Code Tutorial</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+</head>
+<body>
+
+  <main class="container" style="padding-top:2.5rem; padding-bottom:4rem;">
+
+    <p class="back-link"><a href="../">&larr; Back to tutorial home</a></p>
+
+    <h1>Managing Context &amp; Long Projects</h1>
+    <p><em>Reference Guide (~8 min read)</em></p>
+
+    <hr>
+
+    <p>Real research projects span weeks or months. Claude Code has a large but finite context window (200K&ndash;1M tokens depending on the model), and no built-in memory of previous sessions. Here's how to manage both problems.</p>
+
+    <h2>How Context Works</h2>
+
+    <p>Everything in a session consumes context: files you read, outputs displayed, conversation history, and images. When context fills up, Claude Code <strong>auto-compresses</strong> older parts of the conversation to make room. This is usually seamless, but instructions given only in conversation can get lost.</p>
+
+    <p><strong>Warning signs context is getting long</strong>:</p>
+    <ul>
+      <li>Claude "forgets" earlier decisions or asks questions you already answered</li>
+      <li>Responses become more generic</li>
+      <li>You see auto-compaction notifications</li>
+    </ul>
+
+    <p><strong>What survives auto-compression</strong>: CLAUDE.md files (re-injected fresh from disk), auto memory, and your most recent exchanges. What may not survive: earlier conversation details, large file contents you read earlier.</p>
+
+    <h2>The Memory System</h2>
+
+    <p>Claude Code has a layered memory system. Run <code>/memory</code> at any time to see what's loaded and manage it.</p>
+
+    <h3>Layer 1: CLAUDE.md (Your Instructions)</h3>
+
+    <p>CLAUDE.md is a markdown file that Claude reads at the start of <strong>every</strong> session. Think of it as a briefing document for a capable but amnesiac research assistant.</p>
+
+    <p><strong>Where CLAUDE.md files live</strong>:</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Scope</th>
+          <th>Location</th>
+          <th>Use for</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Project</strong></td>
+          <td><code>CLAUDE.md</code> or <code>.claude/CLAUDE.md</code> in your repo</td>
+          <td>Project-specific standards, data locations, decisions</td>
+        </tr>
+        <tr>
+          <td><strong>User</strong></td>
+          <td><code>~/.claude/CLAUDE.md</code></td>
+          <td>Personal preferences across all projects</td>
+        </tr>
+        <tr>
+          <td><strong>Rules</strong></td>
+          <td><code>.claude/rules/*.md</code></td>
+          <td>Topic-specific instructions (loaded on demand)</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>To generate a starting CLAUDE.md from your codebase, run <code>/init</code>.</p>
+
+    <p><strong>A good research project CLAUDE.md</strong>:</p>
+    <pre><code class="language-markdown"># Project: Union Wage Premium Study
+
+## Quick Reference
+- Main outcome: log(wage)
+- Main treatment: union_member
+- Identification: Industry x Year FE
+
+## Current Status
+- [x] Data cleaning complete
+- [x] Exploration report done
+- [ ] Main results
+- [ ] Robustness checks
+
+## Key Decisions
+- Dropped obs before 2021 (data quality issues)
+- Using log(wage), not levels
+- Clustering SEs at industry level
+
+## File Locations
+- Clean data: data/cleaned/survey_clean.csv
+- Main script: code/01_main_analysis.R</code></pre>
+
+    <p><strong>Tips</strong>:</p>
+    <ul>
+      <li>Keep it under 200 lines. Long CLAUDE.md files waste context and reduce adherence.</li>
+      <li>Be specific: "Cluster SEs at the state level" beats "Use appropriate standard errors."</li>
+      <li>Update it as your project evolves. Stale instructions cause confusion.</li>
+    </ul>
+
+    <h3>Layer 2: Auto Memory (Claude's Notes)</h3>
+
+    <p>Claude Code automatically saves things it learns while working with you: debugging patterns, build commands, your preferences. These persist across sessions without you doing anything.</p>
+
+    <p><strong>Where it lives</strong>: <code>~/.claude/projects/&lt;your-project&gt;/memory/</code></p>
+
+    <p><strong>How it works</strong>:</p>
+    <ul>
+      <li>Claude decides what's worth saving based on corrections, discoveries, and patterns</li>
+      <li>An index file (<code>MEMORY.md</code>) is loaded at session start (first 200 lines)</li>
+      <li>Additional topic files are read on demand</li>
+      <li>Everything is plain markdown. You can read, edit, or delete any of it.</li>
+    </ul>
+
+    <p><strong>You can also ask Claude to remember things explicitly</strong>:</p>
+    <pre><code>Remember that we're clustering at the state level, not industry level.</code></pre>
+
+    <p>Run <code>/memory</code> to see what's been saved and manage it.</p>
+
+    <h3>Layer 3: Session Continuity</h3>
+
+    <p>You can pick up where you left off across sessions:</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Command</th>
+          <th>What it does</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>claude --continue</code></td>
+          <td>Resume your most recent session</td>
+        </tr>
+        <tr>
+          <td><code>claude --resume</code></td>
+          <td>Choose from recent sessions</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>This restores your full conversation history, so Claude remembers everything from that session.</p>
+
+    <h2>Context Management Commands</h2>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Command</th>
+          <th>When to use</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>/memory</code></td>
+          <td>See all loaded memory files, toggle auto memory, audit what Claude saved</td>
+        </tr>
+        <tr>
+          <td><code>/compact</code></td>
+          <td>Manually compress context (optionally with a focus: <code>/compact focus on the regression analysis</code>)</td>
+        </tr>
+        <tr>
+          <td><code>/clear</code></td>
+          <td>Hard reset. Wipes all context. Use sparingly.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p><strong>Prefer <code>/compact</code> over <code>/clear</code></strong>. Compaction preserves key context while freeing space. <code>/clear</code> destroys everything. Only use <code>/clear</code> when context is genuinely polluted (e.g., you accidentally loaded a huge irrelevant file).</p>
+
+    <h2>Workflow for Multi-Session Projects</h2>
+
+    <h3>Ending a session</h3>
+
+    <pre><code>Summarize what we accomplished today.
+Update CLAUDE.md with current status and any decisions we made.</code></pre>
+
+    <p>Or just ask: "Update CLAUDE.md." Claude will preserve what matters.</p>
+
+    <h3>Starting a new session</h3>
+
+    <p>If you're not resuming (<code>--continue</code>), Claude automatically reads CLAUDE.md and auto memory. You can jump straight to work:</p>
+
+    <pre><code>Today I'm running robustness checks on the main specification.</code></pre>
+
+    <p>Claude will already know your project context from CLAUDE.md and auto memory.</p>
+
+    <h3>Organizing a larger project with rules</h3>
+
+    <p>If your CLAUDE.md is getting long, split instructions into <code>.claude/rules/</code> files:</p>
+
+    <pre><code>your-project/
+├── CLAUDE.md                    # Core project info
+└── .claude/rules/
+    ├── data-conventions.md      # Variable naming, data locations
+    ├── analysis-decisions.md    # Methodological choices
+    └── output-standards.md      # Table/figure formatting</code></pre>
+
+    <p>Rules without a <code>paths:</code> header load at session start. Rules with path conditions load only when Claude works with matching files.</p>
+
+    <h2>Quick Tips</h2>
+
+    <ol>
+      <li><strong>Run <code>/memory</code> periodically</strong> to see what Claude has learned and correct anything wrong</li>
+      <li><strong>Put persistent instructions in CLAUDE.md</strong>, not conversation. Conversation may get compressed; CLAUDE.md always reloads fresh.</li>
+      <li><strong>Save important outputs to files</strong> (CSV, PDF, markdown). Terminal output disappears when the session ends.</li>
+      <li><strong>Use <code>--continue</code> to resume work</strong> rather than re-explaining your project</li>
+      <li><strong>Keep CLAUDE.md concise</strong> (under 200 lines). Link to longer docs with <code>@path/to/file</code> rather than inlining everything.</li>
+    </ol>
+
+    <hr>
+
+    <p><em>Part of the Claude Code Tutorial for Quantitative Social Scientists</em></p>
+
+  </main>
+
+</body>
+</html>

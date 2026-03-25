@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Publication-Ready Output — Claude Code Tutorial</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+</head>
+<body>
+
+  <main class="container" style="padding-top:2.5rem; padding-bottom:4rem;">
+
+    <p class="back-link"><a href="../">&larr; Back to tutorial home</a></p>
+
+    <h1>Publication-Ready Output</h1>
+    <p><em>Reference Guide (~5 min read)</em></p>
+
+    <hr>
+
+    <p>Getting from analysis code to journal-ready tables and figures involves a pipeline: your statistical software produces results, those results get formatted, and formatted output goes into your paper. Claude can help automate this entire workflow.</p>
+
+    <h2>The Output Pipeline</h2>
+
+    <pre><code>Analysis Code &rarr; Raw Results &rarr; Formatted Tables/Figures &rarr; LaTeX/Word
+       &darr;              &darr;                    &darr;                   &darr;
+R/Python/Stata   .csv/.rds         .tex/.docx/.png         Paper</code></pre>
+
+    <p>The goal: one command regenerates everything when you update your analysis.</p>
+
+    <h2>Creating Publication-Quality Tables</h2>
+
+    <h3>R: modelsummary (Recommended)</h3>
+
+    <pre><code class="language-r"># Clean, customizable tables
+library(modelsummary)
+
+models &lt;- list(
+  "OLS" = lm(wage ~ union, data = df),
+  "With Controls" = lm(wage ~ union + education + experience, data = df),
+  "Fixed Effects" = feols(wage ~ union | state + year, data = df)
+)
+
+modelsummary(models,
+  output = "output/tables/main_results.tex",
+  stars = c('*' = 0.1, '**' = 0.05, '***' = 0.01),
+  coef_rename = c("union" = "Union Member"),
+  gof_omit = "AIC|BIC|Log"
+)</code></pre>
+
+    <p>Ask Claude:</p>
+    <pre><code>Create a regression table with modelsummary comparing
+these three specifications. Export to LaTeX and Word.</code></pre>
+
+    <h3>R: Other Options</h3>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Package</th>
+          <th>Strength</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>stargazer</code></td>
+          <td>Classic, widely used</td>
+        </tr>
+        <tr>
+          <td><code>kableExtra</code></td>
+          <td>Flexible HTML/LaTeX</td>
+        </tr>
+        <tr>
+          <td><code>gt</code></td>
+          <td>Modern, publication-ready</td>
+        </tr>
+        <tr>
+          <td><code>huxtable</code></td>
+          <td>Good Word export</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>Stata: esttab/outreg2</h3>
+
+    <pre><code class="language-stata">* Store estimates
+eststo clear
+eststo: reg wage union
+eststo: reg wage union education experience
+eststo: reghdfe wage union, absorb(state year)
+
+* Export table
+esttab using "output/tables/main_results.tex", ///
+    replace booktabs label ///
+    star(* 0.10 ** 0.05 *** 0.01) ///
+    se notes</code></pre>
+
+    <p>Ask Claude:</p>
+    <pre><code>Create a Stata table using esttab with these three regressions,
+formatted for a top economics journal.</code></pre>
+
+    <h3>Python: statsmodels + stargazer</h3>
+
+    <pre><code class="language-python">import pandas as pd
+import statsmodels.formula.api as smf
+from stargazer.stargazer import Stargazer
+
+# Fit models
+model1 = smf.ols('wage ~ union', data=df).fit()
+model2 = smf.ols('wage ~ union + education + experience', data=df).fit()
+
+# Create table
+table = Stargazer([model1, model2])
+table.title('Effect of Union Membership on Wages')
+table.custom_columns(['OLS', 'With Controls'])
+
+# Export to LaTeX
+with open('output/tables/main_results.tex', 'w') as f:
+    f.write(table.render_latex())
+
+# Export to HTML (for Word via browser)
+with open('output/tables/main_results.html', 'w') as f:
+    f.write(table.render_html())</code></pre>
+
+    <p>Ask Claude:</p>
+    <pre><code>Create a regression table using statsmodels comparing
+these specifications. Export to LaTeX.</code></pre>
+
+    <h3>AER/QJE Style Formatting</h3>
+
+    <p>Common requirements:</p>
+    <ul>
+      <li>Standard errors in parentheses (not t-statistics)</li>
+      <li>Three significance levels: 10%, 5%, 1%</li>
+      <li>Note at bottom explaining significance stars</li>
+      <li>Descriptive column headers</li>
+      <li>No vertical lines; minimal horizontal lines</li>
+    </ul>
+
+    <pre><code>Format this table to match AER style guidelines.
+Add appropriate notes about clustering and significance levels.</code></pre>
+
+    <h2>Creating Publication-Quality Figures</h2>
+
+    <h3>R: ggplot2 Themes</h3>
+
+    <pre><code class="language-r">library(ggplot2)
+
+# Clean theme for publications
+theme_publication &lt;- theme_minimal() +
+  theme(
+    text = element_text(family = "serif", size = 11),
+    axis.title = element_text(size = 12),
+    legend.position = "bottom",
+    panel.grid.minor = element_blank()
+  )
+
+# Apply to plot
+ggplot(df, aes(x = year, y = wage, color = union)) +
+  geom_line() +
+  theme_publication +
+  labs(x = "Year", y = "Hourly Wage ($)")
+
+ggsave("output/figures/wage_trends.pdf", width = 6, height = 4)</code></pre>
+
+    <p>Ask Claude:</p>
+    <pre><code>Create a time series plot of wages by union status.
+Use a clean theme suitable for journal publication.
+Save as PDF at 6x4 inches.</code></pre>
+
+    <h3>Python: matplotlib/seaborn</h3>
+
+    <pre><code class="language-python">import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Clean theme for publications
+plt.rcParams.update({
+    'font.family': 'serif',
+    'font.size': 11,
+    'axes.titlesize': 12,
+    'figure.figsize': (6, 4)
+})
+
+# Create plot
+fig, ax = plt.subplots()
+sns.lineplot(data=df, x='year', y='wage', hue='union', ax=ax)
+ax.set_xlabel('Year')
+ax.set_ylabel('Hourly Wage ($)')
+plt.tight_layout()
+plt.savefig('output/figures/wage_trends.pdf')
+plt.close()</code></pre>
+
+    <p>Ask Claude:</p>
+    <pre><code>Create a time series plot of wages by union status using matplotlib.
+Use a clean theme suitable for journal publication.
+Save as PDF at 6x4 inches.</code></pre>
+
+    <h3>Sizing and Resolution</h3>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Output</th>
+          <th>Format</th>
+          <th>Resolution</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Print journal</td>
+          <td>PDF</td>
+          <td>Vector (scalable)</td>
+        </tr>
+        <tr>
+          <td>Online supplement</td>
+          <td>PNG</td>
+          <td>300 dpi minimum</td>
+        </tr>
+        <tr>
+          <td>Presentations</td>
+          <td>PNG</td>
+          <td>150 dpi is fine</td>
+        </tr>
+        <tr>
+          <td>Working paper</td>
+          <td>PDF</td>
+          <td>Vector (scalable)</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <pre><code class="language-r"># High-resolution PNG for online
+ggsave("figure.png", width = 6, height = 4, dpi = 300)
+
+# PDF for print (vector, scales perfectly)
+ggsave("figure.pdf", width = 6, height = 4)</code></pre>
+
+    <h3>PDF vs PNG</h3>
+
+    <ul>
+      <li><strong>PDF</strong>: Vector graphics, scales to any size, smaller files for simple plots, best for journals</li>
+      <li><strong>PNG</strong>: Raster graphics, fixed resolution, better for complex plots with many points</li>
+    </ul>
+
+    <p>Rule of thumb: Use PDF unless you have &gt;10,000 data points or complex transparency.</p>
+
+    <h2>Automating the Pipeline</h2>
+
+    <h3>R: Source Script Approach</h3>
+
+    <p>Create <code>run_all.R</code>:</p>
+    <pre><code class="language-r"># Master script - regenerates all output
+source("code/01_clean_data.R")
+source("code/02_analysis.R")
+source("code/03_tables.R")
+source("code/04_figures.R")
+message("All outputs regenerated!")</code></pre>
+
+    <h3>Make-style Automation</h3>
+
+    <p>Ask Claude:</p>
+    <pre><code>Create a master script that:
+1. Cleans the raw data
+2. Runs all regressions
+3. Generates all tables (LaTeX and Word)
+4. Creates all figures
+5. Logs what was produced with timestamps</code></pre>
+
+    <p>Claude will create a script that chains everything together.</p>
+
+    <h3>One-Command Regeneration</h3>
+
+    <p>The goal:</p>
+    <pre><code class="language-bash">Rscript run_all.R
+# or
+claude "Regenerate all tables and figures"</code></pre>
+
+    <p>And everything updates consistently.</p>
+
+    <h2>Journal-Specific Requirements</h2>
+
+    <h3>Common Style Guides</h3>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Journal</th>
+          <th>Key Requirements</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>AER</td>
+          <td>SE in parentheses, booktabs, specific note format</td>
+        </tr>
+        <tr>
+          <td>QJE</td>
+          <td>Similar to AER, check recent issues</td>
+        </tr>
+        <tr>
+          <td>ASR</td>
+          <td>Different table conventions, check submission guide</td>
+        </tr>
+        <tr>
+          <td>APSR</td>
+          <td>Check their LaTeX template</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>Check Before Submitting</h3>
+
+    <p>Most journals specify:</p>
+    <ul>
+      <li>Maximum figure dimensions</li>
+      <li>Required file formats</li>
+      <li>Font requirements</li>
+      <li>Color vs. grayscale</li>
+      <li>Accessibility requirements</li>
+    </ul>
+
+    <pre><code>What are the figure requirements for [journal name]?
+Adjust my figures to meet their specifications.</code></pre>
+
+    <h3>Figure and Table Numbering</h3>
+
+    <p>Let LaTeX handle numbering:</p>
+    <pre><code class="language-latex">\begin{table}[htbp]
+\caption{Effect of Union Membership on Wages}
+\label{tab:main_results}
+\input{output/tables/main_results.tex}
+\end{table}</code></pre>
+
+    <p>Reference with <code>Table \ref{tab:main_results}</code> &mdash; numbers update automatically.</p>
+
+    <h2>Common Pitfalls</h2>
+
+    <ol>
+      <li><strong>Hardcoding numbers</strong> &mdash; Never type results manually. Always generate from code.</li>
+      <li><strong>Forgetting to regenerate</strong> &mdash; After changing analysis, regenerate all tables/figures before submitting.</li>
+      <li><strong>Inconsistent formatting</strong> &mdash; Use the same theme/style across all figures in a paper.</li>
+      <li><strong>Wrong file format</strong> &mdash; Check journal requirements. PDF is usually safest for figures.</li>
+      <li><strong>Missing source files</strong> &mdash; Keep the code that generates each output. You'll need to revise.</li>
+    </ol>
+
+    <h2>Quick Reference</h2>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Task</th>
+          <th>R</th>
+          <th>Python</th>
+          <th>Stata</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Regression table</td>
+          <td><code>modelsummary()</code></td>
+          <td><code>Stargazer()</code></td>
+          <td><code>esttab</code></td>
+        </tr>
+        <tr>
+          <td>Export to LaTeX</td>
+          <td><code>output = "file.tex"</code></td>
+          <td><code>render_latex()</code></td>
+          <td><code>using "file.tex"</code></td>
+        </tr>
+        <tr>
+          <td>Export to Word</td>
+          <td><code>output = "file.docx"</code></td>
+          <td><code>render_html()</code> &rarr; convert</td>
+          <td><code>using "file.rtf"</code></td>
+        </tr>
+        <tr>
+          <td>Publication figure</td>
+          <td><code>ggsave("file.pdf")</code></td>
+          <td><code>plt.savefig("file.pdf")</code></td>
+          <td><code>graph export "file.pdf"</code></td>
+        </tr>
+        <tr>
+          <td>High-res PNG</td>
+          <td><code>ggsave(..., dpi = 300)</code></td>
+          <td><code>plt.savefig(..., dpi=300)</code></td>
+          <td><code>graph export ..., width(2000)</code></td>
+        </tr>
+        <tr>
+          <td>Run full pipeline</td>
+          <td><code>source("run_all.R")</code></td>
+          <td><code>python run_all.py</code></td>
+          <td><code>do run_all.do</code></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <hr>
+
+    <p><em>Part of the Claude Code Tutorial for Quantitative Social Scientists</em></p>
+
+  </main>
+
+</body>
+</html>

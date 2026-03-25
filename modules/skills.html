@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Using and Creating Skills — Claude Code Tutorial</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+</head>
+<body>
+
+  <main class="container" style="padding-top:2.5rem; padding-bottom:4rem;">
+
+    <p class="back-link"><a href="../">&larr; Back to tutorial home</a></p>
+
+    <h1>Using and Creating Skills</h1>
+    <p><em>Reference Guide (~5 min read)</em></p>
+
+    <hr>
+
+    <p>Skills are reusable prompt templates that standardize common workflows. Instead of typing the same complex instructions repeatedly, you invoke a skill with a simple command.</p>
+
+    <h2>What Are Skills?</h2>
+
+    <p>A skill is a markdown file that contains instructions Claude follows when you invoke it. Skills can:</p>
+    <ul>
+      <li>Automate multi-step workflows</li>
+      <li>Enforce consistent practices across a team</li>
+      <li>Encode domain-specific knowledge</li>
+    </ul>
+
+    <p>Skills live in <code>.claude/skills/</code> within your project.</p>
+
+    <h2>Built-in Skills</h2>
+
+    <p>Claude Code comes with several built-in skills:</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Skill</th>
+          <th>What It Does</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>/commit</code></td>
+          <td>Creates a well-formatted git commit</td>
+        </tr>
+        <tr>
+          <td><code>/plan</code></td>
+          <td>Creates an implementation plan before executing</td>
+        </tr>
+        <tr>
+          <td><code>/init</code></td>
+          <td>Initializes a CLAUDE.md file for your project</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p><strong>Try it</strong>: Type <code>/commit</code> after making changes. Claude will review your changes and create a descriptive commit message.</p>
+
+    <h2>Finding Available Skills</h2>
+
+    <p>To see what skills are available in your project:</p>
+
+    <pre><code>What skills are available?</code></pre>
+
+    <p>Or look in your project's <code>.claude/skills/</code> folder.</p>
+
+    <h2>Creating Custom Skills</h2>
+
+    <h3>Basic Structure</h3>
+
+    <p>Create a file at <code>.claude/skills/your-skill-name/SKILL.md</code>:</p>
+
+    <pre><code class="language-markdown">---
+description: One-line description of what this skill does
+---
+
+# Skill Name
+
+Instructions for Claude to follow when this skill is invoked.
+
+Be specific about:
+- What inputs to expect
+- What steps to take
+- What outputs to produce</code></pre>
+
+    <h3>Example: Data Audit Skill</h3>
+
+    <p>Create <code>.claude/skills/data-audit/SKILL.md</code>:</p>
+
+    <pre><code class="language-markdown">---
+description: Detect data quality issues and anomalies in datasets
+---
+
+# Data Audit Skill
+
+Systematic detection of data quality issues in new datasets.
+
+## Workflow
+
+1. **Gather Inputs**
+   - Dataset file (CSV, Excel, Stata, R, Parquet)
+   - Codebook or data dictionary (optional)
+
+2. **Run Checks**
+   - Structure: dimensions, variable types, empty columns
+   - Missing data: rates, patterns, sentinel values (999, -1, etc.)
+   - Duplicates: exact and near-duplicates on key fields
+   - Ranges: values outside plausible bounds
+   - Distributions: heaping, suspicious spikes, outliers
+   - Consistency: impossible combinations (birth &gt; death year)
+
+3. **Deliver Report**
+   - Critical issues (likely errors)
+   - Anomalies to investigate
+   - Variable-level summary table
+
+Save report to output/data_audit_report.md</code></pre>
+
+    <p>Then invoke with: <code>/data-audit</code> when you load a new dataset.</p>
+
+    <h3>Example: Regression Table Skill</h3>
+
+    <p>Create <code>.claude/skills/reg-table/SKILL.md</code>:</p>
+
+    <pre><code class="language-markdown">---
+description: Create a publication-ready regression table
+---
+
+# Regression Table
+
+When the user asks for a regression table:
+
+1. Ask what variables to include if not specified
+2. Run regressions with appropriate standard error clustering
+3. Format using modelsummary (R) or esttab (Stata)
+4. Export to both LaTeX and Word formats
+5. Save to output/tables/
+
+Always include:
+- Descriptive column headers
+- Standard errors in parentheses
+- Significance stars with note
+- Number of observations
+- R-squared or pseudo-R-squared</code></pre>
+
+    <h3>Arguments and Placeholders</h3>
+
+    <p>Skills can accept arguments. In your SKILL.md:</p>
+
+    <pre><code class="language-markdown">When invoked with `/my-skill [argument]`:
+- If argument is "quick", produce abbreviated output
+- If argument is "detailed", include full diagnostics</code></pre>
+
+    <p>Invoke with: <code>/my-skill quick</code> or <code>/my-skill detailed</code></p>
+
+    <h2>Sharing Skills with Collaborators</h2>
+
+    <p>Skills are just files in your project. To share:</p>
+
+    <ol>
+      <li><strong>Commit to git</strong>: Skills in <code>.claude/skills/</code> travel with your repository</li>
+      <li><strong>Copy between projects</strong>: Drag and drop the skill folder</li>
+      <li><strong>Team templates</strong>: Create a shared repository of common skills</li>
+    </ol>
+
+    <p>Example team workflow:</p>
+    <pre><code class="language-bash"># Clone shared skills
+git clone team-skills-repo .claude/skills/shared
+
+# Now everyone has access to:
+# /shared/data-cleaning
+# /shared/regression-diagnostics
+# /shared/figure-export</code></pre>
+
+    <h2>Common Pitfalls</h2>
+
+    <ol>
+      <li><strong>Overly complex skills</strong> &mdash; Keep skills focused on one task. A skill that does "everything" is hard to maintain.</li>
+      <li><strong>Missing context</strong> &mdash; Skills don't know your project structure. Include paths or ask Claude to check CLAUDE.md.</li>
+      <li><strong>Forgetting to test</strong> &mdash; Try your skill on a simple case before using it on real work.</li>
+      <li><strong>No error handling</strong> &mdash; Tell Claude what to do when things go wrong (missing files, unexpected data).</li>
+    </ol>
+
+    <h2>Quick Reference</h2>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Task</th>
+          <th>How</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>List available skills</td>
+          <td>"What skills are available?"</td>
+        </tr>
+        <tr>
+          <td>Create a skill</td>
+          <td>Make <code>.claude/skills/name/SKILL.md</code></td>
+        </tr>
+        <tr>
+          <td>Invoke a skill</td>
+          <td><code>/skill-name</code> or <code>/skill-name argument</code></td>
+        </tr>
+        <tr>
+          <td>Share skills</td>
+          <td>Commit <code>.claude/skills/</code> to git</td>
+        </tr>
+        <tr>
+          <td>Built-in: commit</td>
+          <td><code>/commit</code></td>
+        </tr>
+        <tr>
+          <td>Built-in: plan</td>
+          <td><code>/plan</code></td>
+        </tr>
+        <tr>
+          <td>Built-in: initialize</td>
+          <td><code>/init</code></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <hr>
+
+    <p><em>Part of the Claude Code Tutorial for Quantitative Social Scientists</em></p>
+
+  </main>
+
+</body>
+</html>

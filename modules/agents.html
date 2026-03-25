@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Using Agents — Claude Code Tutorial</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+</head>
+<body>
+
+  <main class="container" style="padding-top:2.5rem; padding-bottom:4rem;">
+
+    <p class="back-link"><a href="../">&larr; Back to tutorial home</a></p>
+
+    <h1>Using Agents</h1>
+    <p><em>Reference Guide (~5 min read)</em></p>
+
+    <hr>
+
+    <p>When you ask Claude to review your code for bugs, check the formatting, and verify the statistics all at once, it will skim everything and do a mediocre job at all of them. Agents solve this by splitting work into focused specialists.</p>
+
+    <h2>What Are Agents?</h2>
+
+    <p>An agent is a separate Claude instance with a specific job. Instead of one Claude trying to do everything, you get multiple Claudes that each focus on one thing:</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Single Claude</th>
+          <th>Specialized Agents</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>"Review my code for style, bugs, and stats"</td>
+          <td><strong>Code reviewer</strong>: style and correctness only</td>
+        </tr>
+        <tr>
+          <td>Catches some issues, misses others</td>
+          <td><strong>Stats checker</strong>: methodology and numbers only</td>
+        </tr>
+        <tr>
+          <td>Attention spread thin across dimensions</td>
+          <td>Each agent gives full attention to its dimension</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>This is the same principle behind peer review &mdash; you wouldn't ask one reviewer to check grammar, methodology, and theory simultaneously.</p>
+
+    <h2>Two Ways to Use Agents</h2>
+
+    <h3>1. Claude Spawns Them Automatically</h3>
+
+    <p>When Claude encounters a complex task, it can break it into subtasks and delegate each to a subagent. You don't need to do anything &mdash; Claude decides when parallelism helps.</p>
+
+    <p>For example, if you ask Claude to review a long analysis script, it might spawn one subagent to check the data cleaning logic and another to check the statistical models, then synthesize both reports.</p>
+
+    <h3>2. You Create Custom Agents</h3>
+
+    <p>You can define specialized agents for your project. These live in <code>.claude/agents/</code> as markdown files with instructions.</p>
+
+    <h2>Creating a Custom Agent</h2>
+
+    <p>Create a file at <code>.claude/agents/your-agent-name.md</code>:</p>
+
+    <pre><code class="language-markdown">---
+name: data-reviewer
+description: Reviews datasets for quality issues
+model: sonnet
+tools: ["Read", "Grep", "Glob", "Bash"]
+---
+
+# Data Quality Reviewer
+
+## Role
+You are a data quality specialist reviewing datasets for a quantitative
+social science project.
+
+## What to Check
+1. Missing data patterns — are they random or systematic?
+2. Variable distributions — anything bimodal, heaped, or truncated?
+3. Impossible values — ages over 120, negative incomes, future dates
+4. Sample composition — does it match what the codebook promises?
+5. Panel consistency — do IDs appear the expected number of times?
+
+## Report Format
+Organize findings by severity:
+- **Critical**: Errors that would invalidate analysis
+- **Warning**: Anomalies that need investigation
+- **Note**: Minor issues or things to document</code></pre>
+
+    <h3>YAML Frontmatter Fields</h3>
+
+    <p>The <code>---</code> block at the top configures the agent:</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Field</th>
+          <th>What It Does</th>
+          <th>Example</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>name</code></td>
+          <td>Agent identifier</td>
+          <td><code>data-reviewer</code></td>
+        </tr>
+        <tr>
+          <td><code>description</code></td>
+          <td>One-line summary (shown in agent list)</td>
+          <td><code>Reviews datasets for quality issues</code></td>
+        </tr>
+        <tr>
+          <td><code>model</code></td>
+          <td>Which Claude model to use</td>
+          <td><code>sonnet</code>, <code>opus</code>, <code>haiku</code></td>
+        </tr>
+        <tr>
+          <td><code>tools</code></td>
+          <td>Which tools the agent can use</td>
+          <td><code>["Read", "Grep", "Glob"]</code></td>
+        </tr>
+        <tr>
+          <td><code>maxTurns</code></td>
+          <td>Limit how many steps the agent takes</td>
+          <td><code>15</code></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p><strong>Restricting tools matters.</strong> An agent with only <code>Read</code>, <code>Grep</code>, and <code>Glob</code> can review files but can't modify them &mdash; it's a read-only reviewer. This is useful when you want honest critique without the agent "fixing" its own findings.</p>
+
+    <h2>Practical Examples for Research</h2>
+
+    <h3>Code Reviewer</h3>
+
+    <pre><code class="language-markdown">---
+name: code-reviewer
+description: Reviews R/Python/Stata scripts for correctness and reproducibility
+tools: ["Read", "Grep", "Glob"]
+---
+
+# Code Reviewer
+
+## Role
+Review research code for correctness and reproducibility.
+
+## Checklist
+1. Does the script run top-to-bottom without errors?
+2. Are random seeds set before any stochastic operations?
+3. Are file paths relative (not hardcoded to one machine)?
+4. Do variable names match between the code and any documentation?
+5. Are results saved to files, or only printed to console?
+6. Are package dependencies loaded at the top?
+
+## What NOT to Review
+- Code style preferences (tabs vs spaces, naming conventions)
+- Performance optimization
+- Anything not directly related to correctness</code></pre>
+
+    <h3>Replication Checker</h3>
+
+    <pre><code class="language-markdown">---
+name: replication-checker
+description: Verifies that code output matches claims in paper drafts
+tools: ["Read", "Grep", "Glob", "Bash"]
+---
+
+# Replication Checker
+
+## Role
+Cross-reference paper claims against code output.
+
+## Process
+1. Read the paper draft — extract every empirical claim
+   (point estimates, standard errors, sample sizes, p-values)
+2. Find the code that produces each claim
+3. Flag any discrepancy: number in paper vs number in code/output
+
+## Report
+For each claim, report:
+- Paper says: [exact text]
+- Code produces: [value from output]
+- Status: MATCH / MISMATCH / CANNOT VERIFY</code></pre>
+
+    <h2>The Adversarial Pattern</h2>
+
+    <p>The most powerful agent pattern separates <strong>criticism</strong> from <strong>fixing</strong>:</p>
+
+    <pre><code>Critic agent (read-only)     Fixer agent (can edit)
+        |                            |
+   Finds 8 issues              Fixes 8 issues
+        |                            |
+   Re-reviews ──────────────&gt; Still 2 remaining
+        |                            |
+   Re-reviews ──────────────&gt; All clear</code></pre>
+
+    <p><strong>Why this works</strong>: The critic can't edit files, so it has no incentive to downplay problems. The fixer can't approve its own work &mdash; the critic re-checks. This prevents Claude from saying "looks good" about its own output.</p>
+
+    <p>You don't need to set this up yourself &mdash; it's a pattern to be aware of when designing agents for team workflows or complex projects.</p>
+
+    <h2>When to Use Agents vs. Just Asking Claude</h2>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Situation</th>
+          <th>Approach</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>One-off question or quick task</td>
+          <td>Just ask Claude directly</td>
+        </tr>
+        <tr>
+          <td>Recurring review you do the same way every time</td>
+          <td>Create a custom agent</td>
+        </tr>
+        <tr>
+          <td>Task that benefits from focused attention on one dimension</td>
+          <td>Custom agent</td>
+        </tr>
+        <tr>
+          <td>Multiple independent checks that could run in parallel</td>
+          <td>Multiple agents</td>
+        </tr>
+        <tr>
+          <td>You want critique that isn't biased by having written the code</td>
+          <td>Read-only agent</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p><strong>Start simple.</strong> Most research tasks don't need custom agents. Use them when you notice yourself giving Claude the same complex instructions repeatedly, or when you want more thorough review than a single prompt provides.</p>
+
+    <h2>Quick Reference</h2>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Task</th>
+          <th>How</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Create an agent</td>
+          <td>Make <code>.claude/agents/name.md</code> with YAML frontmatter</td>
+        </tr>
+        <tr>
+          <td>Make an agent read-only</td>
+          <td>Set <code>tools: ["Read", "Grep", "Glob"]</code></td>
+        </tr>
+        <tr>
+          <td>Limit agent runtime</td>
+          <td>Set <code>maxTurns: 15</code></td>
+        </tr>
+        <tr>
+          <td>Use a cheaper model</td>
+          <td>Set <code>model: sonnet</code> or <code>model: haiku</code></td>
+        </tr>
+        <tr>
+          <td>List your agents</td>
+          <td>Check <code>.claude/agents/</code> folder</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <hr>
+
+    <p><em>Part of the Claude Code Tutorial for Quantitative Social Scientists</em></p>
+
+  </main>
+
+</body>
+</html>

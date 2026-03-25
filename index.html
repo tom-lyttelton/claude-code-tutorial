@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Claude Code for Quantitative Social Scientists</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+</head>
+<body>
+
+  <!-- Navigation -->
+  <nav class="site-nav">
+    <div class="container">
+      <a href="#" class="nav-brand">Claude Code Tutorial</a>
+      <a href="#case-studies" class="nav-link">Case Studies</a>
+      <a href="#getting-started" class="nav-link">Getting Started</a>
+      <a href="#tutorial" class="nav-link nav-highlight">Tutorial</a>
+      <a href="#modules" class="nav-link">Additional Modules</a>
+      <a href="#resources" class="nav-link">Other Guides</a>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <header class="hero">
+    <div class="container">
+      <h1>Claude Code for Quantitative Social Scientists</h1>
+      <p class="subtitle">A hands-on tutorial for using AI-assisted coding in your research</p>
+      <p class="byline">MIT Generative AI and Academic Workflows Study</p>
+    </div>
+  </header>
+
+  <!-- 1. Case Studies -->
+  <section id="case-studies">
+    <div class="container">
+      <h2>Case Studies</h2>
+      <p>See how researchers are already using Claude Code for real academic work.</p>
+
+      <div class="case-card">
+        <h3><a href="assets/Straus_Hall_Claude_Audit.pdf">How Accurately Did Claude Code Replicate a Published Political Science Paper?</a></h3>
+        <div class="authors">Graham Straus (UCLA) &amp; Andrew Hall (Stanford) &middot; January 2026</div>
+        <p>An audit of Claude Code replicating and extending Thompson et al. (2020) on vote-by-mail&mdash;remarkably accurate on the core replication, with instructive errors on novel extensions.</p>
+      </div>
+
+      <div class="case-card">
+        <h3><a href="https://www.oneusefulthing.org/p/claude-code-and-what-comes-next" target="_blank" rel="noopener">Claude Code and What Comes Next <span class="external-icon">&#x2197;</span></a></h3>
+        <div class="authors">Ethan Mollick (Wharton) &middot; January 2026</div>
+        <p>A non-technical introduction to Claude Code&rsquo;s capabilities, demonstrating the tool autonomously building and deploying a website in 74 minutes.</p>
+      </div>
+
+      <div class="case-card">
+        <h3><a href="https://ape.socialcatalystlab.org/" target="_blank" rel="noopener">Project APE: Autonomous Policy Evaluation <span class="external-icon">&#x2197;</span></a></h3>
+        <div class="authors">Social Catalyst Lab &amp; University of Zurich</div>
+        <p>An experimental system that uses AI to automatically generate economics research papers on policy questions, then ranks them in tournament-style head-to-head comparisons against peer-reviewed publications.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. Getting Started -->
+  <section id="getting-started" class="alt">
+    <div class="container">
+      <h2>Getting Started</h2>
+
+      <p><strong>Prerequisites:</strong> A Claude subscription (Pro, Max, or Teams), Git, and your preferred statistical software (R, Python, or Stata).</p>
+
+      <h3>Install Claude Code</h3>
+      <div class="install-group">
+        <div class="install-box">
+          <h3>macOS / Linux</h3>
+          <code>npm install -g @anthropic-ai/claude-code</code>
+          <p style="font-size:0.9rem; color:var(--color-text-muted); margin-top:0.5rem;">
+            Requires <a href="https://nodejs.org/" target="_blank" rel="noopener">Node.js 18+</a>.
+            Verify with <code>claude --version</code>.
+          </p>
+        </div>
+        <div class="install-box">
+          <h3>Windows</h3>
+          <p style="font-size:0.9rem; color:var(--color-text-muted); margin-bottom:0.75rem;">
+            Open PowerShell and run:
+          </p>
+          <code>irm https://claude.ai/install.ps1 | iex</code>
+          <p style="font-size:0.9rem; color:var(--color-text-muted); margin-top:0.75rem;">
+            Requires Git for Windows. See the
+            <a href="modules/install-windows.html"><strong>full Windows installation guide</strong></a>
+            for detailed steps and troubleshooting.
+          </p>
+        </div>
+      </div>
+
+      <h3 style="margin-top:2rem;">Quick Start</h3>
+      <ol class="steps">
+        <li>Install Claude Code (see above)</li>
+        <li><a href="assets/tutorial.zip">Download</a> and unzip the tutorial package</li>
+        <li>Open a terminal and <code>cd</code> into the <code>tutorial/</code> folder</li>
+        <li>Run <code>claude</code> to start a session</li>
+        <li>Type <code>/tutorial start</code> to begin the interactive walkthrough</li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- 3. Tutorial -->
+  <section id="tutorial">
+    <div class="container">
+      <h2>The Tutorial</h2>
+      <p>
+        A 20-minute interactive walkthrough that teaches you to use Claude Code for a complete data analysis workflow. You&rsquo;ll work with a simulated dataset on union membership and wages in Midwest states (2010&ndash;2019), moving from messy raw data to clean analysis: diagnosing data quality issues, cleaning variables, generating an exploration report with tables and figures, and thinking about causal identification strategies.
+      </p>
+      <p>
+        The tutorial runs inside Claude Code itself&mdash;just type <code>/tutorial start</code> after opening a session in the tutorial folder. It works with R, Python, or Stata. Reference solutions in all three languages are included.
+      </p>
+      <p style="margin-top:1.5rem;">
+        <a href="assets/tutorial.zip" class="btn btn-primary">Download Tutorial Package</a>
+      </p>
+
+      <div class="file-tree" style="margin-top:1.5rem;">
+        tutorial/<br>
+        &nbsp;&nbsp;README.md &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">-- Start here</span><br>
+        &nbsp;&nbsp;TUTORIAL.md &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">-- Main tutorial (20 min)</span><br>
+        &nbsp;&nbsp;INSTALL_WINDOWS.md &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">-- Windows setup guide</span><br>
+        &nbsp;&nbsp;sample_data/ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">-- Practice dataset &amp; codebook</span><br>
+        &nbsp;&nbsp;modules/ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">-- 6 reference guides</span><br>
+        &nbsp;&nbsp;resources/ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">-- Cheatsheet &amp; links</span><br>
+        &nbsp;&nbsp;solutions/ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">-- Reference implementations (R, Python, Stata)</span><br>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. Additional Modules -->
+  <section id="modules" class="alt">
+    <div class="container">
+      <h2>Additional Modules</h2>
+      <p>Six standalone reference guides for deeper dives. Each takes about 5 minutes to read. All are also included in the tutorial download.</p>
+
+      <div class="card-grid" style="margin-top:1rem;">
+        <div class="card">
+          <h3>Prompting Best Practices</h3>
+          <p>How to write effective prompts for data cleaning, analysis, and figure generation.</p>
+          <span class="tag">~5 min</span>
+          <a href="modules/prompting.html" class="card-link">Read online</a>
+        </div>
+        <div class="card">
+          <h3>Context &amp; Long Projects</h3>
+          <p>Manage Claude&rsquo;s memory across sessions with CLAUDE.md, auto memory, and <code>/compact</code>.</p>
+          <span class="tag">~8 min</span>
+          <a href="modules/memory.html" class="card-link">Read online</a>
+        </div>
+        <div class="card">
+          <h3>Publication-Ready Output</h3>
+          <p>Generate journal-quality tables and figures in R, Python, or Stata.</p>
+          <span class="tag">~5 min</span>
+          <a href="modules/paper-workflow.html" class="card-link">Read online</a>
+        </div>
+        <div class="card">
+          <h3>Skills &amp; Slash Commands</h3>
+          <p>Create reusable workflows like <code>/data-audit</code> or <code>/regression-table</code>.</p>
+          <span class="tag">~5 min</span>
+          <a href="modules/skills.html" class="card-link">Read online</a>
+        </div>
+        <div class="card">
+          <h3>Finding Data Online</h3>
+          <p>Use Claude to locate datasets, query APIs, and scrape public data sources.</p>
+          <span class="tag">~5 min</span>
+          <a href="modules/data-acquisition.html" class="card-link">Read online</a>
+        </div>
+        <div class="card">
+          <h3>Using Agents</h3>
+          <p>Delegate specialized tasks like code review or replication checking to focused sub-agents.</p>
+          <span class="tag">~5 min</span>
+          <a href="modules/agents.html" class="card-link">Read online</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. Additional Materials -->
+  <section id="resources">
+    <div class="container">
+      <h2>Other People's Guides</h2>
+
+      <div class="resource-group">
+        <div class="resource-item">
+          <a href="https://psantanna.com/claude-code-my-workflow/workflow-guide.html" target="_blank" rel="noopener">Pedro Sant&rsquo;Anna&rsquo;s Claude Code Workflow <span class="external-icon">&#x2197;</span></a>
+          <p>A comprehensive setup guide by an econometrician at Emory. Covers specialized review agents, custom skills, quality gates, and a full orchestrator pattern for managing slides, papers, and data pipelines.</p>
+        </div>
+
+        <div class="resource-item">
+          <a href="https://gabors-data-analysis.com/ai-course/" target="_blank" rel="noopener">Doing Data Analysis with AI (Gabor Bekes) <span class="external-icon">&#x2197;</span></a>
+          <p>A 12-week open-source university course integrating AI tools into data analysis. Progresses from LLM basics through agentic CLI workflows to causal inference methods, with case studies and assignments.</p>
+        </div>
+        <div class="resource-item">
+          <a href="https://docs.anthropic.com/en/docs/claude-code/overview" target="_blank" rel="noopener">Claude Code Documentation (Anthropic) <span class="external-icon">&#x2197;</span></a>
+          <p>Official reference. Commands, configuration, features, and <a href="https://www.anthropic.com/engineering/claude-code-best-practices" target="_blank" rel="noopener">best practices</a>.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <div class="footer-links">
+        <a href="mailto:wflstudy@mit.edu">wflstudy@mit.edu</a>
+      </div>
+      <p>MIT Generative AI and Academic Workflows Study &middot; March 2026</p>
+    </div>
+  </footer>
+
+</body>
+</html>

@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Installing Claude Code on Windows — Claude Code Tutorial</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+</head>
+<body>
+
+  <main class="container" style="padding-top:2.5rem; padding-bottom:4rem;">
+
+    <p class="back-link"><a href="../">&larr; Back to tutorial home</a></p>
+
+    <h1>Installing Claude Code on Windows</h1>
+
+    <p>This guide walks you through installing Claude Code on a Windows machine. It covers the most common pitfalls and the simplest path to a working setup.</p>
+
+    <p><strong>Time required</strong>: ~10 minutes</p>
+
+    <hr>
+
+    <h2>What You Need Before Starting</h2>
+
+    <ol>
+      <li><strong>A Claude subscription</strong> &mdash; Pro ($20/month), Max, Teams, or Enterprise. The free Claude.ai plan does not include Claude Code.</li>
+      <li>
+        <strong>Git for Windows</strong> &mdash; Claude Code uses Git Bash internally to run commands. This is <strong>mandatory</strong>.
+        <ul>
+          <li>Download: <a href="https://git-scm.com/downloads/win" target="_blank" rel="noopener">https://git-scm.com/downloads/win</a></li>
+          <li>During installation, select <strong>"Add to PATH"</strong> when prompted</li>
+          <li>Accept the other defaults</li>
+        </ul>
+      </li>
+      <li><strong>Windows 10 (version 1809+) or Windows 11</strong></li>
+    </ol>
+
+    <p>If you already have Git installed, you can check by opening PowerShell and running:</p>
+    <pre><code class="language-powershell">git --version</code></pre>
+    <p>If it prints a version number, you're good.</p>
+
+    <hr>
+
+    <h2>Installation: Pick One Method</h2>
+
+    <h3>Option A: Native Installer (Recommended)</h3>
+
+    <p>Open <strong>PowerShell</strong> (not CMD) and run:</p>
+
+    <pre><code class="language-powershell">irm https://claude.ai/install.ps1 | iex</code></pre>
+
+    <p>This downloads and installs Claude Code with automatic updates. No other dependencies needed.</p>
+
+    <blockquote>
+      <p><strong>If you see "irm is not recognized"</strong>: You're in CMD, not PowerShell. Search for "PowerShell" in the Start menu and open it.</p>
+    </blockquote>
+
+    <h3>Option B: WinGet</h3>
+
+    <p>If you're on Windows 11 (or Windows 10 22H2+):</p>
+
+    <pre><code class="language-powershell">winget install Anthropic.ClaudeCode</code></pre>
+
+    <h3>Option C: Desktop App</h3>
+
+    <p>Download the graphical installer from Anthropic's website. This gives you a desktop app with no terminal setup required:</p>
+
+    <p><a href="https://claude.ai/download" target="_blank" rel="noopener">https://claude.ai/download</a></p>
+
+    <hr>
+
+    <h2>After Installation: Verify It Works</h2>
+
+    <p>Close and reopen your terminal, then run:</p>
+
+    <pre><code class="language-powershell">claude --version</code></pre>
+
+    <p>You should see a version number. If instead you get <strong>"claude is not recognized"</strong>, see <a href="#troubleshooting">Troubleshooting</a> below.</p>
+
+    <hr>
+
+    <h2>First Run: Authentication</h2>
+
+    <ol>
+      <li>Run <code>claude</code> in your terminal</li>
+      <li>A browser window opens automatically for login</li>
+      <li>Sign in with your Claude account</li>
+      <li>Return to the terminal &mdash; you should see the Claude Code prompt</li>
+    </ol>
+
+    <blockquote>
+      <p>If the browser doesn't open automatically, press <code>c</code> to copy the login URL to your clipboard, then paste it into your browser.</p>
+    </blockquote>
+
+    <hr>
+
+    <h2>Setting Up Your Statistical Software</h2>
+
+    <p>Claude Code needs to be able to find your statistical software (R, Python, or Stata) from the command line.</p>
+
+    <p><strong>Test it first</strong> &mdash; in the same terminal where Claude works, try:</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Software</th>
+          <th>Test Command</th>
+          <th>Expected Output</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>R</td>
+          <td><code>Rscript --version</code></td>
+          <td>Version number</td>
+        </tr>
+        <tr>
+          <td>Python</td>
+          <td><code>python --version</code></td>
+          <td>Version number</td>
+        </tr>
+        <tr>
+          <td>Stata</td>
+          <td><code>"C:\Program Files\Stata18\StataMP-64.exe" /e version</code></td>
+          <td>Version info</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>If R or Python isn't found, it's usually a PATH issue &mdash; the terminal doesn't know where the program lives. You can fix this inside the tutorial by telling Claude your software's location (it will update CLAUDE.md for you), or see the <a href="#r-or-python-not-found-in-terminal">PATH fix</a> below.</p>
+
+    <hr>
+
+    <h2 id="troubleshooting">Troubleshooting</h2>
+
+    <h3>"claude" is not recognized</h3>
+
+    <p>Claude Code installed but your terminal can't find it. Fix:</p>
+
+    <p><strong>Check if it's installed somewhere your PATH doesn't include:</strong></p>
+    <pre><code class="language-powershell">$env:PATH -split ';' | Select-String 'local\\bin'</code></pre>
+
+    <p><strong>If nothing shows up, add it:</strong></p>
+    <pre><code class="language-powershell">$currentPath = [Environment]::GetEnvironmentVariable('PATH', 'User')
+[Environment]::SetEnvironmentVariable('PATH', "$currentPath;$env:USERPROFILE\.local\bin", 'User')</code></pre>
+
+    <p>Then <strong>close and reopen your terminal</strong> and try <code>claude --version</code> again.</p>
+
+    <h3>"Claude Code on Windows requires git-bash"</h3>
+
+    <p>Git for Windows isn't installed or isn't in your PATH.</p>
+
+    <p><strong>Fix A</strong>: Install Git for Windows from <a href="https://git-scm.com/downloads/win" target="_blank" rel="noopener">https://git-scm.com/downloads/win</a> (make sure "Add to PATH" is checked).</p>
+
+    <p><strong>Fix B</strong>: If Git is installed but Claude can't find it, tell Claude where it is. Create or edit the file <code>%USERPROFILE%\.claude\settings.json</code>:</p>
+    <pre><code class="language-json">{
+  "env": {
+    "CLAUDE_CODE_GIT_BASH_PATH": "C:\\Program Files\\Git\\bin\\bash.exe"
+  }
+}</code></pre>
+
+    <p>To find your actual Git path, run <code>where.exe git</code> in PowerShell, then use the <code>bin\bash.exe</code> in that same directory.</p>
+
+    <h3 id="r-or-python-not-found-in-terminal">R or Python not found in terminal</h3>
+
+    <p>Your software is installed but the terminal doesn't know where it is.</p>
+
+    <p><strong>For R</strong>: Open R (the GUI) and run <code>R.home("bin")</code>. This prints something like <code>C:/PROGRA~1/R/R-4.4.0/bin</code>. Add that to your system PATH, or note it down &mdash; you can tell Claude this path during the tutorial.</p>
+
+    <p><strong>For Python</strong>: Run <code>where python</code> in PowerShell. If nothing comes up, you may need to:</p>
+    <ol>
+      <li>Open the Python installer again and check "Add Python to PATH"</li>
+      <li>Or install Python from <a href="https://www.python.org/downloads/" target="_blank" rel="noopener">https://www.python.org/downloads/</a> with the PATH checkbox selected</li>
+    </ol>
+
+    <h3>PowerShell script execution is blocked</h3>
+
+    <p>If you get an error about "execution of scripts is disabled" when running the installer:</p>
+
+    <pre><code class="language-powershell">Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned</code></pre>
+
+    <p>Then retry the installation command.</p>
+
+    <h3>Behind a corporate proxy or firewall</h3>
+
+    <p>Set your proxy before installing:</p>
+    <pre><code class="language-powershell">$env:HTTPS_PROXY = "http://your-proxy:port"
+irm https://claude.ai/install.ps1 | iex</code></pre>
+
+    <h3>Diagnostics</h3>
+
+    <p>If something else is wrong, Claude Code has a built-in diagnostic tool:</p>
+    <pre><code class="language-powershell">claude doctor</code></pre>
+
+    <p>This checks your system configuration and reports issues.</p>
+
+    <hr>
+
+    <h2>Quick Summary</h2>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Step</th>
+          <th>Command / Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1. Install Git</td>
+          <td><a href="https://git-scm.com/downloads/win" target="_blank" rel="noopener">https://git-scm.com/downloads/win</a></td>
+        </tr>
+        <tr>
+          <td>2. Install Claude Code</td>
+          <td><code>irm https://claude.ai/install.ps1 | iex</code> (in PowerShell)</td>
+        </tr>
+        <tr>
+          <td>3. Restart terminal</td>
+          <td>Close and reopen PowerShell</td>
+        </tr>
+        <tr>
+          <td>4. Verify</td>
+          <td><code>claude --version</code></td>
+        </tr>
+        <tr>
+          <td>5. Authenticate</td>
+          <td>Run <code>claude</code>, sign in via browser</td>
+        </tr>
+        <tr>
+          <td>6. Start tutorial</td>
+          <td><code>cd path\to\tutorial</code> then <code>claude</code></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <hr>
+
+    <h2>Updating Claude Code</h2>
+
+    <p>The native installer auto-updates in the background. You can also update manually:</p>
+    <pre><code class="language-powershell">claude update</code></pre>
+
+    <hr>
+
+    <p><em>If you hit an issue not covered here, run <code>/feedback</code> inside Claude Code to report it, or check <a href="https://github.com/anthropics/claude-code/issues" target="_blank" rel="noopener">https://github.com/anthropics/claude-code/issues</a></em></p>
+
+  </main>
+
+</body>
+</html>

@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prompting Best Practices — Claude Code Tutorial</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+</head>
+<body>
+
+  <main class="container" style="padding-top:2.5rem; padding-bottom:4rem;">
+
+    <p class="back-link"><a href="../">&larr; Back to tutorial home</a></p>
+
+    <h1>Prompting Best Practices</h1>
+    <p><em>Reference Guide (~5 min read)</em></p>
+
+    <hr>
+
+    <p>How you ask Claude to do something affects what you get back. Good prompts lead to useful results on the first try. Poor prompts lead to back-and-forth clarification or outputs that miss the mark.</p>
+
+    <h2>The Core Principle</h2>
+
+    <p><strong>Be specific about what you want, but not about how to do it.</strong></p>
+
+    <p>Claude is good at figuring out implementation details. Your job is to clearly describe the goal and any constraints.</p>
+
+    <h2>Structure of a Good Prompt</h2>
+
+    <p>A complete prompt often includes:</p>
+
+    <ol>
+      <li><strong>Context</strong>: What are you working on?</li>
+      <li><strong>Task</strong>: What do you want Claude to do?</li>
+      <li><strong>Constraints</strong>: What requirements or limitations apply?</li>
+      <li><strong>Output format</strong>: How should the result be presented?</li>
+    </ol>
+
+    <p>Not every prompt needs all four elements, but being explicit helps.</p>
+
+    <h3>Example: Weak vs. Strong Prompts</h3>
+
+    <p><strong>Weak</strong>:</p>
+    <pre><code>Clean this data</code></pre>
+
+    <p><strong>Strong</strong>:</p>
+    <pre><code>Clean admin_data.csv for analysis. Handle these issues:
+- Multiple missing value codes (-99, "", "NA", "missing")
+- Inconsistent gender coding (M/F/Male/Female/0/1)
+- Age outliers (negative or &gt;100)
+
+Save cleaned data to output/admin_data_clean.csv.
+Report how many rows were dropped and why.</code></pre>
+
+    <p>The strong prompt tells Claude what problems exist, what to do about them, and what output you need.</p>
+
+    <h2>Key Prompting Patterns</h2>
+
+    <h3>1. Diagnose Before Fixing</h3>
+
+    <p>Don't jump straight to solutions:</p>
+    <pre><code>Diagnose all data quality issues in survey.csv.
+Don't fix anything yet - just report what you find.</code></pre>
+
+    <p>Then review the diagnosis before asking for fixes. This catches issues you might not have anticipated.</p>
+
+    <h3>2. Explain Then Execute</h3>
+
+    <p>Ask Claude to explain its plan before running code:</p>
+    <pre><code>Before running anything, explain how you'll approach
+this regression analysis and what specifications you'll use.</code></pre>
+
+    <p>This gives you a chance to course-correct before Claude does a lot of work.</p>
+
+    <h3>3. Constrain the Scope</h3>
+
+    <p>Prevent over-engineering by being explicit about limits:</p>
+    <pre><code>Add a simple bar chart of wage by education level.
+Don't add interactivity, themes, or extra formatting -
+just a basic ggplot with clear labels.</code></pre>
+
+    <h3>4. Request Specific Output Formats</h3>
+
+    <p>Be clear about what you want back:</p>
+    <pre><code>Create a summary table with these columns:
+- Variable name
+- N (non-missing)
+- Mean
+- SD
+- Min
+- Max
+
+Export as both CSV and formatted markdown.</code></pre>
+
+    <h3>5. Provide Examples</h3>
+
+    <p>When the format matters, show what you want:</p>
+    <pre><code>Rename variables to follow this pattern:
+- wage_hourly (not hourlyWage or Hourly.Wage)
+- years_education (not yrs_ed or educYears)
+- is_union_member (not union or UnionMember)</code></pre>
+
+    <h2>Prompts for Common Tasks</h2>
+
+    <h3>Data Cleaning</h3>
+    <pre><code>Clean [file] for analysis:
+- Standardize missing values to NA
+- Fix inconsistent categorical coding
+- Flag (don't drop) outliers in [variable]
+- Save cleaned data to [path]
+- Report all changes made with counts</code></pre>
+
+    <h3>Exploration</h3>
+    <pre><code>Explore the relationship between [X] and [Y]:
+- Summary statistics by group
+- Visualization of the distribution
+- Correlation or cross-tabulation as appropriate
+- Note any obvious confounders in the data</code></pre>
+
+    <h3>Regression Analysis</h3>
+    <pre><code>Regress [Y] on [X] with these specifications:
+1. Bivariate
+2. Adding controls: [list]
+3. Adding fixed effects: [list]
+
+Cluster standard errors at [level].
+Present results in a single table.</code></pre>
+
+    <h3>Creating Figures</h3>
+    <pre><code>Create a [plot type] showing [relationship].
+- Use clean axis labels (no variable names)
+- Add a title that describes the finding
+- Size for a journal column (6 inches wide)
+- Save as PDF to output/figures/</code></pre>
+
+    <h2>What to Do When Results Are Wrong</h2>
+
+    <h3>Be More Specific</h3>
+    <p>If Claude misunderstands, add detail:</p>
+    <pre><code>That's not quite right. The union variable should be
+treated as binary (0/1), not continuous. Re-run the
+regression treating it as a factor.</code></pre>
+
+    <h3>Show the Error</h3>
+    <p>When something breaks, share the full error:</p>
+    <pre><code>That gave an error. Here's the message:
+[paste error]
+
+What's causing this and how do we fix it?</code></pre>
+
+    <h3>Ask for Alternatives</h3>
+    <p>If one approach isn't working:</p>
+    <pre><code>That method isn't working for this data structure.
+What are two other approaches we could try?</code></pre>
+
+    <h2>Prompts to Avoid</h2>
+
+    <h3>Too Vague</h3>
+    <pre><code>Analyze this data</code></pre>
+    <p>What kind of analysis? What questions are you trying to answer?</p>
+
+    <h3>Too Prescriptive</h3>
+    <pre><code>Write a function called clean_data that takes a dataframe,
+loops through columns, checks if typeof is character,
+then uses gsub to replace...</code></pre>
+    <p>Tell Claude what you need, not how to code it.</p>
+
+    <h3>Multiple Unrelated Tasks</h3>
+    <pre><code>Clean the data, run regressions, make figures, and
+write up the methods section</code></pre>
+    <p>Break complex work into sequential steps.</p>
+
+    <h2>Common Pitfalls</h2>
+
+    <ol>
+      <li><strong>Not reading Claude's output</strong> &mdash; Claude often asks clarifying questions or notes assumptions. Read the full response.</li>
+      <li><strong>Asking for too much at once</strong> &mdash; Complex tasks should be broken into steps. Let Claude complete one before starting the next.</li>
+      <li><strong>Forgetting context</strong> &mdash; Each prompt should contain enough information to stand alone. Don't assume Claude remembers details from earlier.</li>
+      <li><strong>Not specifying output location</strong> &mdash; Always say where files should be saved, or Claude will choose for you.</li>
+      <li><strong>Skipping verification</strong> &mdash; After Claude produces output, check it. Ask Claude to verify its own work when appropriate.</li>
+    </ol>
+
+    <h2>Quick Reference</h2>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Goal</th>
+          <th>Prompt Pattern</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Understand before acting</td>
+          <td>"Diagnose X. Don't fix yet."</td>
+        </tr>
+        <tr>
+          <td>Prevent surprises</td>
+          <td>"Explain your approach before running code."</td>
+        </tr>
+        <tr>
+          <td>Keep it simple</td>
+          <td>"Add a simple X. Don't add extra features."</td>
+        </tr>
+        <tr>
+          <td>Get usable output</td>
+          <td>"Export as [format] to [path]."</td>
+        </tr>
+        <tr>
+          <td>Show what you want</td>
+          <td>"Follow this pattern: [example]"</td>
+        </tr>
+        <tr>
+          <td>Fix mistakes</td>
+          <td>"That's not right because [reason]. Instead, [correction]."</td>
+        </tr>
+        <tr>
+          <td>Debug errors</td>
+          <td>"This error occurred: [message]. What's wrong?"</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <hr>
+
+    <p><em>Part of the Claude Code Tutorial for Quantitative Social Scientists</em></p>
+
+  </main>
+
+</body>
+</html>
